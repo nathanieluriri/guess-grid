@@ -141,7 +141,7 @@
     @apply relative inline-flex items-center justify-center select-none font-mono font-semibold;
     @apply bg-[hsl(var(--bg-surface))] text-[hsl(var(--text-primary))];
     @apply border border-[hsl(var(--border-subtle))];
-    @apply transition-all duration-[120ms];
+    transition: all 120ms var(--ease-standard);
     box-shadow: var(--shadow-sm);
   }
 
@@ -175,7 +175,7 @@
     @apply relative inline-flex items-center justify-center font-mono font-semibold;
     @apply bg-[hsl(var(--bg-inset))] text-[hsl(var(--text-primary))];
     @apply border-2 border-dashed border-[hsl(var(--border-subtle))];
-    @apply transition-all duration-[120ms];
+    transition: all 120ms var(--ease-standard);
   }
 
   .guess-slot[data-over="true"] {
