@@ -21,14 +21,20 @@ export function GuessRow({ result, isLatest, isWin }: GuessRowProps) {
     >
       <span className="text-xs font-mono text-text-tertiary w-6 shrink-0">#{result.attempt}</span>
       <div className="flex gap-1 sm:gap-1.5 flex-1">
-        {result.digits.map((d, i) => (
-          <div
-            key={i}
-            className="size-9 sm:size-10 rounded-md surface-elevated border border-border grid place-items-center font-mono font-semibold text-base sm:text-lg"
-          >
-            {d}
-          </div>
-        ))}
+        {result.digits.map((d, i) => {
+          const hidden = d < 0;
+          return (
+            <div
+              key={i}
+              className={cn(
+                "size-9 sm:size-10 rounded-md surface-elevated border border-border grid place-items-center font-mono font-semibold text-base sm:text-lg",
+                hidden && "text-text-tertiary blur-[1px]",
+              )}
+            >
+              {hidden ? "?" : d}
+            </div>
+          );
+        })}
       </div>
       <div className="flex items-center gap-1.5">
         {PowerIcon && (

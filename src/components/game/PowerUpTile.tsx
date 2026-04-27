@@ -7,6 +7,7 @@ interface PowerUpTileProps {
   onUse?: () => void;
   size?: "sm" | "md" | "lg";
   showCount?: boolean;
+  showRarityDot?: boolean;
 }
 
 const RARITY_RING: Record<string, string> = {
@@ -16,7 +17,20 @@ const RARITY_RING: Record<string, string> = {
   epic: "border-foreground/70 animate-shimmer",
 };
 
-export function PowerUpTile({ powerUp, onUse, size = "md", showCount = true }: PowerUpTileProps) {
+const RARITY_DOT: Record<string, string> = {
+  common: "bg-text-tertiary",
+  uncommon: "bg-dead",
+  rare: "bg-injured",
+  epic: "bg-foreground",
+};
+
+export function PowerUpTile({
+  powerUp,
+  onUse,
+  size = "md",
+  showCount = true,
+  showRarityDot = false,
+}: PowerUpTileProps) {
   const Icon = POWER_UP_ICONS[powerUp.id];
   const dim =
     size === "lg" ? "size-16" : size === "sm" ? "size-10" : "size-12";
@@ -24,6 +38,7 @@ export function PowerUpTile({ powerUp, onUse, size = "md", showCount = true }: P
 
   return (
     <button
+      type="button"
       onClick={onUse}
       disabled={powerUp.count === 0}
       className={cn(
@@ -36,6 +51,12 @@ export function PowerUpTile({ powerUp, onUse, size = "md", showCount = true }: P
       aria-label={`${powerUp.name}, ${powerUp.count} remaining`}
     >
       {Icon && <Icon className={cn(iconSize, "text-foreground")} strokeWidth={1.6} />}
+      {showRarityDot ? (
+        <span
+          aria-hidden="true"
+          className={cn("absolute left-1.5 top-1.5 size-2 rounded-full", RARITY_DOT[powerUp.rarity])}
+        />
+      ) : null}
       {showCount && (
         <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-foreground text-background text-[10px] font-mono font-semibold grid place-items-center">
           {powerUp.count}

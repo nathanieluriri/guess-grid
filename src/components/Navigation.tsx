@@ -1,4 +1,6 @@
-import { NavLink } from "react-router-dom";
+"use client";
+
+import { useDeferredValue, useEffect, useState } from "react";
 import {
   Swords,
   Puzzle,
@@ -8,9 +10,11 @@ import {
   User,
   Search,
   Bell,
-  Coins,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NavLink } from "@/components/NavLink";
+import { apiRequest } from "@/lib/api/client";
+import { CoinPill } from "@/components/ui/coin-pill";
 
 const NAV_ITEMS = [
   { to: "/play", label: "Play", icon: Swords },
@@ -18,14 +22,51 @@ const NAV_ITEMS = [
   { to: "/learn", label: "Learn", icon: GraduationCap },
   { to: "/practice", label: "Practice", icon: Dumbbell },
   { to: "/social", label: "Social", icon: Users },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/profile", label: "Me", icon: User },
 ];
 
 const MOBILE_NAV = NAV_ITEMS.filter((i) => i.to !== "/social");
 
+interface SearchHit {
+  id: string;
+  kind: "player" | "puzzle";
+  label: string;
+  subtitle: string;
+  href: string;
+}
+
 export function TopBar() {
+  const [wallet, setWallet] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const [results, setResults] = useState<SearchHit[]>([]);
+
+  useEffect(() => {
+    void apiRequest<{ balance: number }>("/wallet/me").then((response) => {
+      if (response.data?.balance !== undefined) {
+        setWallet(response.data.balance);
+      }
+    });
+    void apiRequest<{ unreadCount: number }>("/notifications").then((response) => {
+      if (response.data?.unreadCount !== undefined) {
+        setNotificationCount(response.data.unreadCount);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!deferredQuery.trim()) {
+      setResults([]);
+      return;
+    }
+    void apiRequest<{ query: string; results: SearchHit[] }>(`/search?q=${encodeURIComponent(deferredQuery)}`).then((response) => {
+      setResults(response.data?.results ?? []);
+    });
+  }, [deferredQuery]);
+
   return (
-    <header className="sticky top-0 z-40 h-14 surface border-b border-border flex items-center px-4 gap-4">
+    <header className="sticky top-0 z-40 h-14 surface border-b border-border flex items-center px-4 gap-3 sm:gap-4">
       <div className="flex items-center gap-2">
         <div className="size-8 rounded-lg bg-foreground text-background grid place-items-center font-mono font-bold text-sm">
           D&I
@@ -37,19 +78,34 @@ export function TopBar() {
         <div className="w-full relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-text-tertiary" />
           <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label="Search players and puzzles"
             placeholder="Search players, puzzles..."
             className="w-full h-9 pl-9 pr-3 rounded-md bg-inset border border-border text-sm placeholder:text-text-tertiary ring-focus"
           />
+          {results.length > 0 ? (
+            <div className="absolute left-0 right-0 top-11 rounded-xl surface border border-border shadow-lg overflow-hidden">
+              {results.map((result) => (
+                <a key={`${result.kind}-${result.id}`} href={result.href} className="block px-3 py-2 hover:surface-elevated transition">
+                  <div className="text-sm">{result.label}</div>
+                  <div className="text-xs text-text-tertiary">{result.subtitle}</div>
+                </a>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 h-8 rounded-md surface-elevated text-sm font-mono">
-          <Coins className="size-3.5 text-text-secondary" />
-          <span>1,284</span>
-        </div>
-        <button className="size-9 grid place-items-center rounded-md hover:surface-elevated transition ring-focus" aria-label="Notifications">
+      <div className="ml-auto flex items-center gap-2 shrink-0">
+        <CoinPill amount={wallet} className="hidden sm:inline-flex" />
+        <button className="relative size-9 grid place-items-center rounded-md hover:surface-elevated transition ring-focus" aria-label="Notifications">
           <Bell className="size-4" />
+          {notificationCount > 0 ? (
+            <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-foreground text-background text-[10px] grid place-items-center">
+              {notificationCount}
+            </span>
+          ) : null}
         </button>
         <div className="size-9 rounded-full bg-elevated border-2 border-border-strong grid place-items-center font-mono text-xs font-semibold">
           MK
@@ -61,7 +117,7 @@ export function TopBar() {
 
 export function MobileTabs() {
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 surface border-t border-border h-16 grid grid-cols-5 pb-[env(safe-area-inset-bottom)]">
+    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 surface border-t border-border h-16 grid grid-cols-5 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-[hsl(var(--bg-surface)/0.92)]">
       {MOBILE_NAV.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
@@ -108,16 +164,16 @@ export function DesktopRail() {
 
       <div className="mt-auto rounded-xl border border-border p-3 text-xs space-y-2">
         <div className="flex justify-between text-text-secondary">
-          <span>Rating</span>
-          <span className="font-mono text-foreground font-semibold">1,247</span>
+          <span>Wins</span>
+          <span className="font-mono text-foreground font-semibold">Live</span>
         </div>
         <div className="flex justify-between text-text-secondary">
           <span>Streak</span>
-          <span className="font-mono text-foreground font-semibold">12d</span>
+          <span className="font-mono text-foreground font-semibold">Live</span>
         </div>
         <div className="flex justify-between text-text-secondary">
           <span>Coins</span>
-          <span className="font-mono text-foreground font-semibold">1,284</span>
+          <span className="font-mono text-foreground font-semibold">Live</span>
         </div>
       </div>
     </aside>

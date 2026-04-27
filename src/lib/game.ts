@@ -44,6 +44,8 @@ export interface PowerUp {
   count: number;
 }
 
+// These helpers remain as the offline fallback. Server-backed play modes
+// should obtain secrets and guess results from the backend session APIs.
 export function evaluateGuess(secret: number[], guess: number[]): { dead: number; injured: number } {
   let dead = 0;
   let injured = 0;

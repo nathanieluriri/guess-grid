@@ -119,13 +119,15 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
     font-feature-settings: 'cv11', 'ss01';
+    min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .font-mono,
   .tabular {
-    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    font-family: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
     font-variant-numeric: tabular-nums;
   }
 
@@ -136,6 +138,30 @@
 }
 
 @layer components {
+  .page-shell {
+    @apply mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-8;
+  }
+
+  .section-shell {
+    @apply rounded-3xl border border-border surface p-4 shadow-sm sm:p-5;
+  }
+
+  .hero-card {
+    @apply relative overflow-hidden rounded-[1.75rem] border border-border bg-[linear-gradient(145deg,hsl(var(--bg-surface)),hsl(var(--bg-elevated)))] p-5 shadow-lg sm:p-6;
+  }
+
+  .stat-card {
+    @apply rounded-2xl border border-border surface p-4 shadow-sm;
+  }
+
+  .list-row {
+    @apply flex items-center gap-4 rounded-2xl border border-border surface p-4 shadow-sm transition;
+  }
+
+  .pill-chip {
+    @apply inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-[hsl(var(--bg-elevated)/0.9)] px-3 text-xs font-medium text-foreground;
+  }
+
   /* Game digit tile base */
   .digit-tile {
     @apply relative inline-flex items-center justify-center select-none font-mono font-semibold;
