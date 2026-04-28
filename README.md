@@ -2,13 +2,17 @@
 
 This frontend now runs on Next.js App Router with the existing monochrome UI carried over from the Vite SPA.
 
+## Package manager
+
+This project uses **pnpm**. The committed `pnpm-lock.yaml` is the lockfile of record; `package-lock.json` should not be regenerated. Install dependencies with `pnpm install` and run scripts with `pnpm <script>`. CI must do the same — switching managers across environments produces drift in the resolved dependency tree.
+
 ## Scripts
 
-- `npm run dev`
-- `npm run build`
-- `npm run start`
-- `npm run lint`
-- `npm run test`
+- `pnpm dev`
+- `pnpm build`
+- `pnpm start`
+- `pnpm lint`
+- `pnpm test`
 
 ## Environment
 

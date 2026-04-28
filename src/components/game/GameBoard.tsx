@@ -204,6 +204,10 @@ export function GameBoard({ mode, session }: GameBoardProps) {
 
   async function refreshSession() {
     const refreshed = await apiRequest<GameSession>(`/matches/${currentSession.id}/session`);
+    if (refreshed.error) {
+      toast.error("Couldn't refresh the board", { description: refreshed.error });
+      return;
+    }
     if (refreshed.data) {
       setCurrentSession(refreshed.data);
       setHistory(toGuessHistory(refreshed.data));
@@ -272,13 +276,17 @@ export function GameBoard({ mode, session }: GameBoardProps) {
 
   async function resetBot() {
     const response = await apiRequest<GameSession>("/games/single", { method: "POST", body: JSON.stringify({}) });
-    if (response.data) {
-      setCurrentSession(response.data);
-      setHistory([]);
-      setSlots(Array(SECRET_LENGTH).fill(null));
-      setFeedback(DEFAULT_FEEDBACK);
-      setEquipped(response.data.loadout.map((powerUp) => ({ ...powerUp })));
+    if (response.error || !response.data) {
+      toast.error("Couldn't start a new bot match", {
+        description: response.error ?? "Try again in a moment.",
+      });
+      return;
     }
+    setCurrentSession(response.data);
+    setHistory([]);
+    setSlots(Array(SECRET_LENGTH).fill(null));
+    setFeedback(DEFAULT_FEEDBACK);
+    setEquipped(response.data.loadout.map((powerUp) => ({ ...powerUp })));
   }
 
   const slotsFilled = slots.every((slot) => slot !== null);
@@ -325,7 +333,12 @@ export function GameBoard({ mode, session }: GameBoardProps) {
 
         <div className="grid lg:grid-cols-[1fr_320px] gap-4">
           <div className="space-y-4">
-            <div className="rounded-2xl surface-elevated border border-border p-3 sm:p-4 min-h-[180px] max-h-[40vh] overflow-y-auto space-y-2">
+            <div
+              role="list"
+              aria-label="Guess history"
+              aria-live="polite"
+              className="rounded-2xl surface-elevated border border-border p-3 sm:p-4 min-h-[180px] max-h-[40vh] overflow-y-auto space-y-2"
+            >
               {history.length === 0 ? (
                 <div className="text-center text-text-tertiary text-sm py-8">No guesses yet. Build your first guess below.</div>
               ) : (

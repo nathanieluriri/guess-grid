@@ -36,7 +36,11 @@ export function DigitTile({ digit, state, source, slotIndex, size = "md" }: Digi
       style={{
         transform: CSS.Translate.toString(transform),
       }}
-      aria-label={`Digit ${digit}${state === "eliminated" ? ", eliminated" : ""}`}
+      aria-label={
+        source === "slot"
+          ? `Digit ${digit} in slot ${(slotIndex ?? 0) + 1}, draggable`
+          : `Digit ${digit}${state === "eliminated" ? ", eliminated" : state === "in-play" ? ", already on the board" : ", draggable"}`
+      }
     >
       {digit}
       {state === "locked" && <Lock className="absolute -top-1 -right-1 size-3 text-text-secondary" />}

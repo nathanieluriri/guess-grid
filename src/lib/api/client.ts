@@ -1,8 +1,9 @@
-const SERVER_API_BASE_URL =
-  process.env.API_BASE_URL_INTERNAL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
+import { getEnv } from "@/lib/env";
 
 export function getApiBaseUrl() {
-  return SERVER_API_BASE_URL.replace(/\/$/, "");
+  const env = getEnv();
+  const url = typeof window === "undefined" ? env.API_BASE_URL_INTERNAL : env.NEXT_PUBLIC_API_BASE_URL;
+  return url.replace(/\/$/, "");
 }
 
 export function buildApiUrl(path: string) {

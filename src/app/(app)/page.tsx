@@ -1,9 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Gift, Play, Puzzle, GraduationCap, User } from "lucide-react";
 import { PageHeader, PageShell, SectionHeader, StatCard } from "@/components/app/page-shell";
 import { CoinPill } from "@/components/ui/coin-pill";
 import { TierBadge } from "@/components/ui/tier-badge";
 import { getHomePageData } from "@/lib/api/server";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description: "Resume unfinished matches, claim daily drops, and keep your streak alive.",
+  openGraph: {
+    title: "Dead & Injured — Home",
+    description: "Resume unfinished matches, claim daily drops, and keep your streak alive.",
+    type: "website",
+  },
+};
 
 const QUICK_LINKS = [
   { href: "/play", label: "Play", icon: Play },

@@ -14,6 +14,8 @@ export function DigitTray({ digits, inPlay }: DigitTrayProps) {
   return (
     <div
       ref={setNodeRef}
+      role="region"
+      aria-label="Digit tray, drop here to remove a digit from the board"
       className={cn(
         "rounded-2xl surface border border-border p-3 transition-colors",
         isOver && "border-border-strong"

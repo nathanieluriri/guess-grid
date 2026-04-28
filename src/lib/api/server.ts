@@ -11,6 +11,8 @@ import type {
 } from "@/lib/api/mock-data";
 import type { PowerUp } from "@/lib/game";
 
+type FetchCachePolicy = { cache: "no-store" } | { next: { revalidate: number } };
+
 async function cookieHeader() {
   const cookieStore = await cookies();
   return cookieStore
@@ -19,7 +21,11 @@ async function cookieHeader() {
     .join("; ");
 }
 
-async function fetchFromBackend<T>(path: string, init?: RequestInit): Promise<T | null> {
+async function fetchFromBackend<T>(
+  path: string,
+  init?: RequestInit,
+  cachePolicy: FetchCachePolicy = { cache: "no-store" },
+): Promise<T | null> {
   const response = await fetch(buildApiUrl(path), {
     ...init,
     headers: {
@@ -27,7 +33,7 @@ async function fetchFromBackend<T>(path: string, init?: RequestInit): Promise<T 
       cookie: await cookieHeader(),
       "Content-Type": "application/json",
     },
-    cache: "no-store",
+    ...cachePolicy,
   }).catch(() => null);
 
   if (!response?.ok) {
@@ -51,12 +57,18 @@ export async function getWalletData(): Promise<{ balance: number; currency: stri
 }
 
 export async function getLearnPageData(): Promise<LearnChapter[]> {
-  const curriculum = await fetchFromBackend<{ chapters: LearnChapter[] }>("/curriculum");
+  const curriculum = await fetchFromBackend<{ chapters: LearnChapter[] }>(
+    "/curriculum",
+    undefined,
+    { next: { revalidate: 3600 } },
+  );
   return curriculum?.chapters ?? [];
 }
 
 export async function getPuzzlesPageData(): Promise<PuzzlesPageData> {
-  const puzzles = await fetchFromBackend<PuzzlesPageData>("/puzzles");
+  const puzzles = await fetchFromBackend<PuzzlesPageData>("/puzzles", undefined, {
+    next: { revalidate: 300 },
+  });
   return (
     puzzles ?? {
       stats: { wins: 0, streak: "0d", weeklySolved: 0, weeklyTarget: 21, weeklyProgress: 0 },
@@ -208,5 +220,7 @@ export async function getPuzzleDetail(id: string) {
 export async function getLessonDetail(chapterId: string, lessonId: string) {
   return fetchFromBackend<{ chapter_id: string; lesson_id: string; title: string; body: string }>(
     `/curriculum/${chapterId}/lessons/${lessonId}`,
+    undefined,
+    { next: { revalidate: 3600 } },
   );
 }

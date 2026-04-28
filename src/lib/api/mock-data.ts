@@ -60,6 +60,7 @@ export interface ProfileSummary {
   joinedLabel: string;
   bio?: string | null;
   avatar_url?: string | null;
+  isEmailVerified?: boolean;
 }
 
 export interface ProfilePageData {

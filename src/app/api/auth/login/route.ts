@@ -1,19 +1,21 @@
 import { NextResponse } from "next/server";
 import { buildApiUrl } from "@/lib/api/client";
+import { LoginSchema } from "@/lib/auth/schemas";
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as
-    | { username?: string; email?: string; password?: string }
-    | null;
-
-  if (!body?.email || !body?.password) {
-    return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
+  const raw = await request.json().catch(() => null);
+  const parsed = LoginSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid login payload." },
+      { status: 400 },
+    );
   }
 
   const backend = await fetch(buildApiUrl("/users/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: body.email, password: body.password }),
+    body: JSON.stringify({ email: parsed.data.email, password: parsed.data.password }),
     cache: "no-store",
   });
   const payload = (await backend.json().catch(() => null)) as

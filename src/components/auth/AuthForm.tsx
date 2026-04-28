@@ -4,6 +4,7 @@ import Link from "next/link";
 import { startTransition, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AuthFormProps {
   mode: "login" | "signup";
@@ -48,7 +49,11 @@ export function AuthForm({ mode }: AuthFormProps) {
       body: JSON.stringify(payload),
     });
 
-    const body = (await response.json().catch(() => null)) as { error?: string; user?: { username: string } } | null;
+    const body = (await response.json().catch(() => null)) as {
+      error?: string;
+      user?: { username: string };
+      verificationEmail?: "queued" | "delayed";
+    } | null;
 
     if (!response.ok) {
       setIsPending(false);
@@ -58,9 +63,17 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
-    toast.success(mode === "login" ? "Signed in" : "Account created", {
-      description: `Session ready for ${body?.user?.username ?? payload.username}.`,
-    });
+    if (mode === "signup" && body?.verificationEmail === "delayed") {
+      toast.warning("Account created — verification email not sent", {
+        description:
+          "We couldn't send your verification email right now. Once you can sign in, request a new link from your account.",
+        duration: 8000,
+      });
+    } else {
+      toast.success(mode === "login" ? "Signed in" : "Account created", {
+        description: `Session ready for ${body?.user?.username ?? payload.username}.`,
+      });
+    }
 
     startTransition(() => {
       router.push(nextPath);
@@ -101,47 +114,62 @@ export function AuthForm({ mode }: AuthFormProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
+            <fieldset disabled={isPending} className="space-y-4 disabled:opacity-70">
+              {mode === "signup" && (
+                <label className="block space-y-2">
+                  <span className="text-xs uppercase tracking-wider text-text-tertiary">Username</span>
+                  <input
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    autoComplete="username"
+                    className="h-12 w-full rounded-xl bg-inset px-4 text-sm ring-focus disabled:cursor-not-allowed"
+                    placeholder="mason.k"
+                  />
+                </label>
+              )}
+
               <label className="block space-y-2">
-                <span className="text-xs uppercase tracking-wider text-text-tertiary">Username</span>
+                <span className="text-xs uppercase tracking-wider text-text-tertiary">Email</span>
                 <input
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  className="h-12 w-full rounded-xl bg-inset px-4 text-sm ring-focus"
-                  placeholder="mason.k"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="email"
+                  className="h-12 w-full rounded-xl bg-inset px-4 text-sm ring-focus disabled:cursor-not-allowed"
+                  placeholder="you@example.com"
                 />
               </label>
-            )}
 
-            <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-wider text-text-tertiary">Email</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="h-12 w-full rounded-xl bg-inset px-4 text-sm ring-focus"
-                placeholder="you@example.com"
-              />
-            </label>
+              <label className="block space-y-2">
+                <span className="text-xs uppercase tracking-wider text-text-tertiary">Password</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  className="h-12 w-full rounded-xl bg-inset px-4 text-sm ring-focus disabled:cursor-not-allowed"
+                  placeholder="••••••••"
+                />
+              </label>
 
-            <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-wider text-text-tertiary">Password</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="h-12 w-full rounded-xl bg-inset px-4 text-sm ring-focus"
-                placeholder="••••••••"
-              />
-            </label>
-
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground text-sm font-medium text-background transition disabled:opacity-60"
-            >
-              {isPending ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
-            </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                aria-busy={isPending}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-foreground text-sm font-medium text-background transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    <span>Please wait...</span>
+                  </>
+                ) : mode === "login" ? (
+                  "Sign In"
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+            </fieldset>
           </form>
 
           <div className="mt-6 flex items-center justify-between gap-3 text-sm text-text-secondary">

@@ -1,23 +1,34 @@
 import { NextResponse } from "next/server";
 import { buildApiUrl } from "@/lib/api/client";
+import { SignupSchema } from "@/lib/auth/schemas";
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as
-    | { username?: string; email?: string; password?: string }
-    | null;
-
-  if (!body?.email || !body?.password || !body?.username) {
-    return NextResponse.json({ error: "Username, email, and password are required." }, { status: 400 });
+  const raw = await request.json().catch(() => null);
+  const parsed = SignupSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid signup payload." },
+      { status: 400 },
+    );
   }
 
   const backend = await fetch(buildApiUrl("/users/signup"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: body.username, email: body.email, password: body.password }),
+    body: JSON.stringify({
+      username: parsed.data.username,
+      email: parsed.data.email,
+      password: parsed.data.password,
+    }),
     cache: "no-store",
   });
   const payload = (await backend.json().catch(() => null)) as
-    | { data?: unknown; message?: string; errors?: Array<{ message?: string }> }
+    | {
+        data?: unknown;
+        message?: string;
+        meta?: { verification_email?: "queued" | "delayed" } | null;
+        errors?: Array<{ message?: string }>;
+      }
     | null;
   if (!backend.ok) {
     return NextResponse.json(
@@ -26,7 +37,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = NextResponse.json({ ok: true, user: payload?.data ?? null });
+  const response = NextResponse.json({
+    ok: true,
+    user: payload?.data ?? null,
+    verificationEmail: payload?.meta?.verification_email ?? "queued",
+    message: payload?.message ?? null,
+  });
   const setCookieHeaders = (backend.headers as Headers & { getSetCookie?: () => string[] }).getSetCookie?.() ?? [];
   const legacySetCookie = backend.headers.get("set-cookie");
   const cookieValues = setCookieHeaders.length ? setCookieHeaders : legacySetCookie ? [legacySetCookie] : [];

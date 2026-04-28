@@ -11,8 +11,12 @@ interface GuessRowProps {
 
 export function GuessRow({ result, isLatest, isWin }: GuessRowProps) {
   const PowerIcon = result.powerUpUsed ? POWER_UP_ICONS[result.powerUpUsed] : null;
+  const visibleDigits = result.digits.filter((d) => d >= 0).join("");
+  const guessLabel = visibleDigits.length === result.digits.length ? `Guess ${visibleDigits}` : "Hidden guess";
   return (
     <div
+      role="listitem"
+      aria-label={`Attempt ${result.attempt}, ${guessLabel}, ${result.dead} dead and ${result.injured} injured`}
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-xl border border-border",
         isLatest && "animate-row-in",
