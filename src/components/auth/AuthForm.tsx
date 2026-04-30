@@ -5,9 +5,39 @@ import { startTransition, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { buildApiUrl } from "@/lib/api/client";
+import { pickGoogleOAuthTarget } from "@/lib/auth";
 
 interface AuthFormProps {
   mode: "login" | "signup";
+}
+
+function GoogleGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        fill="#4285F4"
+        d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.79 2.72v2.26h2.9c1.7-1.56 2.69-3.86 2.69-6.62Z"
+      />
+      <path
+        fill="#34A853"
+        d="M9 18c2.43 0 4.46-.8 5.95-2.18l-2.9-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.32-1.58-5.03-3.7H.97v2.32A9 9 0 0 0 9 18Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.96H.97A9 9 0 0 0 0 9c0 1.45.35 2.82.97 4.04l3-2.32Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M9 3.58c1.32 0 2.5.45 3.44 1.34l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .97 4.96l3 2.32C4.68 5.16 6.66 3.58 9 3.58Z"
+      />
+    </svg>
+  );
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
@@ -17,6 +47,22 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [isGooglePending, setIsGooglePending] = useState(false);
+
+  const handleGoogle = () => {
+    setIsGooglePending(true);
+    const target = pickGoogleOAuthTarget();
+    const params = new URLSearchParams({ target, redirect: "true" });
+    const next = searchParams.get("next");
+    if (next && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem("googleAuthNext", next);
+      } catch {
+        // Ignore: private mode / disabled storage just falls back to default redirect.
+      }
+    }
+    window.location.href = `${buildApiUrl("/users/google/start")}?${params.toString()}`;
+  };
 
   const title = mode === "login" ? "Welcome back" : "Create your account";
   const subtitle =
@@ -113,8 +159,33 @@ export function AuthForm({ mode }: AuthFormProps) {
             <p className="text-sm leading-relaxed text-text-secondary">{subtitle}</p>
           </div>
 
+          <button
+            type="button"
+            onClick={handleGoogle}
+            disabled={isPending || isGooglePending}
+            aria-busy={isGooglePending}
+            className="mb-4 flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-border bg-background text-sm font-medium text-foreground transition hover:bg-inset disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isGooglePending ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <GoogleGlyph className="size-4" />
+            )}
+            <span>{mode === "login" ? "Continue with Google" : "Sign up with Google"}</span>
+          </button>
+
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            className="mb-4 flex items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-text-tertiary"
+          >
+            <span className="h-px flex-1 bg-border" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <fieldset disabled={isPending} className="space-y-4 disabled:opacity-70">
+            <fieldset disabled={isPending || isGooglePending} className="space-y-4 disabled:opacity-70">
               {mode === "signup" && (
                 <label className="block space-y-2">
                   <span className="text-xs uppercase tracking-wider text-text-tertiary">Username</span>
