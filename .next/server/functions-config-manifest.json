@@ -1,6 +1,0 @@
-{
-  "version": 1,
-  "functions": {
-    "/api/users/me/profile-media": {}
-  }
-}
