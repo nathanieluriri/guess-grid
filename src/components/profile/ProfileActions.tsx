@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Settings2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,16 +25,12 @@ export function ProfileActions({ variant = "edit" }: ProfileActionsProps) {
   }
 
   return (
-    <button
-      onClick={() =>
-        toast("Settings next", {
-          description: "Profile settings now have a dedicated top-right slot. The form and preferences panel still need implementation.",
-        })
-      }
+    <Link
+      href="/profile/settings"
       className="size-9 grid place-items-center rounded-lg surface-elevated border border-border ring-focus"
       aria-label="Open profile settings"
     >
       <Settings2 className="size-4" />
-    </button>
+    </Link>
   );
 }

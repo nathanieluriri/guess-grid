@@ -1,21 +1,28 @@
 import { cn } from "@/lib/utils";
+import { ProfileMedia } from "@/components/profile/ProfileMedia";
+import type { ProfileMediaKind } from "@/lib/api/mock-data";
 
 export function RankRing({
   initials,
   progress,
   size = 88,
   className,
+  mediaUrl,
+  mediaKind,
 }: {
   initials: string;
   progress: number;
   size?: number;
   className?: string;
+  mediaUrl?: string | null;
+  mediaKind?: ProfileMediaKind | null;
 }) {
   const strokeWidth = 7;
   const normalizedRadius = (size - strokeWidth) / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const clampedProgress = Math.max(0, Math.min(100, progress));
   const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
+  const innerSize = size - 20;
 
   return (
     <div className={cn("relative grid place-items-center", className)} style={{ width: size, height: size }}>
@@ -40,8 +47,13 @@ export function RankRing({
           strokeWidth={strokeWidth}
         />
       </svg>
-      <div className="absolute inset-[10px] grid place-items-center rounded-full border border-border bg-elevated font-mono text-base font-semibold shadow-sm">
-        {initials}
+      <div className="absolute inset-[10px]">
+        <ProfileMedia
+          src={mediaUrl}
+          kind={mediaKind}
+          initials={initials}
+          size={innerSize}
+        />
       </div>
     </div>
   );

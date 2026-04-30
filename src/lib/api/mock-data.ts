@@ -42,13 +42,21 @@ export interface SocialFriend {
   name: string;
   status: string;
   online: boolean;
+  profile_media_url?: string | null;
+  profile_media_type?: string | null;
+  profile_media_kind?: ProfileMediaKind | null;
 }
 
 export interface LeaderboardEntry {
   rank: number;
   name: string;
   wins: number;
+  profile_media_url?: string | null;
+  profile_media_type?: string | null;
+  profile_media_kind?: ProfileMediaKind | null;
 }
+
+export type ProfileMediaKind = "image" | "lottie" | "video";
 
 export interface ProfileSummary {
   id: string;
@@ -60,6 +68,9 @@ export interface ProfileSummary {
   joinedLabel: string;
   bio?: string | null;
   avatar_url?: string | null;
+  profile_media_url?: string | null;
+  profile_media_type?: string | null;
+  profile_media_kind?: ProfileMediaKind | null;
   isEmailVerified?: boolean;
 }
 
@@ -88,6 +99,9 @@ export interface GameSession {
     initials: string;
     name: string;
     subtitle: string;
+    profile_media_url?: string | null;
+    profile_media_type?: string | null;
+    profile_media_kind?: ProfileMediaKind | null;
   };
   history: GameSessionGuess[];
   loadout: PowerUp[];

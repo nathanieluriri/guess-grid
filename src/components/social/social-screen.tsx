@@ -6,6 +6,7 @@ import { PageHeader, PageShell } from "@/components/app/page-shell";
 import { cn } from "@/lib/utils";
 import type { LeaderboardEntry, SocialFriend } from "@/lib/api/mock-data";
 import { apiRequest } from "@/lib/api/client";
+import { ProfileMedia } from "@/components/profile/ProfileMedia";
 
 export function SocialScreen({
   friends,
@@ -59,9 +60,12 @@ export function SocialScreen({
           {friends.map((friend) => (
             <div key={friend.id} className="list-row">
               <div className="relative">
-                <div className="grid size-11 place-items-center rounded-full surface-elevated font-mono text-xs font-semibold uppercase">
-                  {friend.name.slice(0, 2)}
-                </div>
+                <ProfileMedia
+                  src={friend.profile_media_url}
+                  kind={friend.profile_media_kind}
+                  initials={friend.name.slice(0, 2).toUpperCase()}
+                  size={44}
+                />
                 <span
                   className={cn(
                     "absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-[hsl(var(--bg-base))]",
@@ -88,9 +92,12 @@ export function SocialScreen({
           {leaders.map((leader) => (
             <div key={leader.rank} className="flex items-center gap-4 border-b border-border px-4 py-3.5 last:border-0">
               <span className="w-8 font-mono text-sm text-text-tertiary">#{leader.rank}</span>
-              <div className="grid size-8 place-items-center rounded-full surface-elevated font-mono text-[10px] font-semibold uppercase">
-                {leader.name.slice(0, 2)}
-              </div>
+              <ProfileMedia
+                src={leader.profile_media_url}
+                kind={leader.profile_media_kind}
+                initials={leader.name.slice(0, 2).toUpperCase()}
+                size={32}
+              />
               <span className="flex-1 text-sm font-medium">{leader.name}</span>
               <span className="font-mono font-semibold">{leader.wins}</span>
             </div>

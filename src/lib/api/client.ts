@@ -1,14 +1,12 @@
-import { getEnv } from "@/lib/env";
+const API_BASE_URL = "https://game-api.visichek.app/api/v1";
 
 export function getApiBaseUrl() {
-  const env = getEnv();
-  const url = typeof window === "undefined" ? env.API_BASE_URL_INTERNAL : env.NEXT_PUBLIC_API_BASE_URL;
-  return url.replace(/\/$/, "");
+  return API_BASE_URL;
 }
 
 export function buildApiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${getApiBaseUrl()}${normalizedPath}`;
+  return `${API_BASE_URL}${normalizedPath}`;
 }
 
 export async function apiRequest<T>(

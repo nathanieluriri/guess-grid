@@ -211,9 +211,9 @@ src/
 - All API calls go through `src/lib/api/client.ts` — a single typed
   fetch wrapper. Never call `fetch("http://...")` ad-hoc in a
   component.
-- The wrapper picks the base URL based on environment:
-  - Server: `process.env.API_BASE_URL_INTERNAL`
-  - Client: `process.env.NEXT_PUBLIC_API_BASE_URL`
+- The base URL is hardcoded to `https://game-api.visichek.app/api/v1`
+  (`API_BASE_URL` constant in `client.ts`). No env vars, no `.env.local`.
+  Edit the constant if you need a different backend.
 - It reads the JWT from the HTTP-only cookie via `cookies()` (server)
   or relies on the cookie being sent automatically (client, with
   `credentials: "include"`).

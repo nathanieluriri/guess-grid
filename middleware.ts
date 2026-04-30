@@ -12,6 +12,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Intentional: cookie-presence check only, not signature verification. The
+  // backend signs JWTs with HS256 and a kid-keyed secret stored server-side,
+  // so the secret cannot be shared with the edge. Forged/expired cookies are
+  // rejected by the backend on the next protected API call (which triggers
+  // refresh/logout). Revisit if/when the backend migrates to RS256 + JWKS.
   if (request.cookies.get(AUTH_COOKIE_NAME)?.value || request.cookies.get(REFRESH_COOKIE_NAME)?.value) {
     return NextResponse.next();
   }

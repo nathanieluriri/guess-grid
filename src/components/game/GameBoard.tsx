@@ -18,6 +18,7 @@ import { GuessSlot } from "./GuessSlot";
 import { DigitTray } from "./DigitTray";
 import { GuessRow } from "./GuessRow";
 import { PowerUpTile } from "./PowerUpTile";
+import { ProfileMedia } from "@/components/profile/ProfileMedia";
 import type { DigitInfo, GuessResult } from "@/lib/game";
 import type { GameSession, PlayMode } from "@/lib/api/mock-data";
 import { cn } from "@/lib/utils";
@@ -317,9 +318,13 @@ export function GameBoard({ mode, session }: GameBoardProps) {
             <ArrowLeft className="size-4" />
           </Link>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="size-10 rounded-full surface-elevated border-2 border-border-strong grid place-items-center font-mono text-xs font-semibold shrink-0">
-              {currentSession.opponent.initials}
-            </div>
+            <ProfileMedia
+              src={currentSession.opponent.profile_media_url}
+              kind={currentSession.opponent.profile_media_kind}
+              initials={currentSession.opponent.initials}
+              size={40}
+              className="shrink-0 border-2 border-border-strong"
+            />
             <div className="min-w-0">
               <div className="text-sm font-semibold leading-tight truncate">{currentSession.opponent.name}</div>
               <div className="text-xs text-text-tertiary font-mono truncate">{currentSession.opponent.subtitle}</div>

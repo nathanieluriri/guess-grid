@@ -31,11 +31,13 @@ export const metadata: Metadata = {
     title: "Dead & Injured",
     description: "A focused, monochrome strategy game of pure deduction.",
     type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Dead & Injured" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Dead & Injured",
     description: "A focused, monochrome strategy game of pure deduction.",
+    images: ["/og.png"],
   },
 };
 

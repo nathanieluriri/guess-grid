@@ -43,7 +43,13 @@ export default async function ProfilePage() {
       {data.user.isEmailVerified === false ? <ResendVerificationButton /> : null}
 
       <section className="section-shell flex flex-col gap-5 sm:flex-row sm:items-center">
-        <RankRing initials={data.user.initials} progress={rankProgress} className="shrink-0" />
+        <RankRing
+          initials={data.user.initials}
+          progress={rankProgress}
+          className="shrink-0"
+          mediaUrl={data.user.profile_media_url ?? data.user.avatar_url}
+          mediaKind={data.user.profile_media_kind}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-2xl sm:text-3xl">{data.user.username}</h2>
