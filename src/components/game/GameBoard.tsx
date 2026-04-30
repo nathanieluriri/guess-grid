@@ -251,7 +251,7 @@ export function GameBoard({ mode, session }: GameBoardProps) {
     }
   }
 
-  async function usePowerUp(id: string) {
+  async function activatePowerUp(id: string) {
     if (!currentSession.powerupUrl) return;
     const powerupPath = currentSession.powerupUrl.replace(/^\/api\/v1/, "");
     const response = await apiRequest<{
@@ -375,7 +375,7 @@ export function GameBoard({ mode, session }: GameBoardProps) {
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl surface border border-border p-3">
               <div className="flex flex-wrap gap-2">
                 {equipped.map((powerUp) => (
-                  <PowerUpTile key={powerUp.id} powerUp={powerUp} onUse={() => usePowerUp(powerUp.id)} size="sm" />
+                  <PowerUpTile key={powerUp.id} powerUp={powerUp} onUse={() => activatePowerUp(powerUp.id)} size="sm" />
                 ))}
               </div>
               <span className="text-[11px] text-text-tertiary uppercase tracking-wider">Equipped</span>

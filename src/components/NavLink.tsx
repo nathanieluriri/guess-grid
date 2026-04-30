@@ -24,7 +24,7 @@ interface NavLinkCompatProps
 }
 
 const NavLink = forwardRef<HTMLAnchorElement, NavLinkCompatProps>(
-  ({ className, activeClassName, pendingClassName, to, children, ...props }, ref) => {
+  ({ className, activeClassName, pendingClassName: _pendingClassName, to, children, ...props }, ref) => {
     const pathname = usePathname();
     const isActive = pathname === to || (to !== "/" && pathname.startsWith(`${to}/`));
     const state = { isActive, isPending: false };
