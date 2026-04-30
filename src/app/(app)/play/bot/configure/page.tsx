@@ -14,13 +14,13 @@ export default function BotConfigurePage() {
       <PageHeader
         eyebrow="vs Bot"
         title="Configure your match"
-        description="This route now owns setup flow instead of `GameBoard`. The next step is moving the full interactive form here."
+        description="Start a bot match with the standard four-digit rules."
       />
       <section className="section-shell space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="stat-card">
             <div className="text-[11px] uppercase tracking-[0.22em] text-text-tertiary">Difficulty</div>
-            <div className="mt-2 text-lg font-semibold">Classic · ~1200 ELO</div>
+            <div className="mt-2 text-lg font-semibold">Classic bot</div>
           </div>
           <div className="stat-card">
             <div className="text-[11px] uppercase tracking-[0.22em] text-text-tertiary">Code length</div>

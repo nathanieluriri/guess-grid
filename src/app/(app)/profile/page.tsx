@@ -6,7 +6,7 @@ import { CoinPill } from "@/components/ui/coin-pill";
 import { RankRing } from "@/components/ui/rank-ring";
 import { TierBadge, type Tier } from "@/components/ui/tier-badge";
 import { ProfileActions } from "@/components/profile/ProfileActions";
-import { ResendVerificationButton } from "@/components/profile/ResendVerificationButton";
+import { AccountStatusBanner } from "@/components/profile/AccountStatusBanner";
 import { getProfilePageData, getWalletData } from "@/lib/api/server";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +40,7 @@ export default async function ProfilePage() {
     <PageShell>
       <PageHeader eyebrow="Status" title="Profile" action={<ProfileActions />} />
 
-      {data.user.isEmailVerified === false ? <ResendVerificationButton /> : null}
+      <AccountStatusBanner />
 
       <section className="section-shell flex flex-col gap-5 sm:flex-row sm:items-center">
         <RankRing

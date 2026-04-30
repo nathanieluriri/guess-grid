@@ -26,7 +26,9 @@ const QUICK_LINKS = [
 function getGreeting(name: string) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const safeName = name && name !== "guest" ? name : "Player";
+  // Synthetic guest usernames look like `guest-abcdef12` — show "Player" until they upgrade.
+  const isSyntheticGuest = !name || name === "guest" || /^guest-[a-z0-9]+$/i.test(name);
+  const safeName = isSyntheticGuest ? "Player" : name;
   return `${greeting}, ${safeName}`;
 }
 

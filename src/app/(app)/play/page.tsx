@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Bot, Globe, Smartphone, UserPlus } from "lucide-react";
+import { Bot, Globe, Smartphone, UserPlus } from "lucide-react";
 import { PageHeader, PageShell } from "@/components/app/page-shell";
+import { ModeTile } from "@/components/play/mode-tile";
 
 export const metadata: Metadata = {
   title: "Play",
@@ -20,6 +20,8 @@ const MODES = [
     title: "Random Online",
     subtitle: "Ranked · casual · fast rematch",
     icon: Globe,
+    gate: "verified" as const,
+    gateLabel: "queue for ranked play",
   },
   {
     href: "/play/friend",
@@ -45,17 +47,16 @@ export default function PlayPage() {
       />
 
       <section className="grid gap-3 lg:grid-cols-2">
-        {MODES.map(({ href, title, subtitle, icon: Icon }) => (
-          <Link key={href} href={href} className="list-row ring-focus hover:border-border-strong">
-            <div className="grid size-12 shrink-0 place-items-center rounded-2xl surface-elevated">
-              <Icon className="size-5 text-text-secondary" strokeWidth={1.8} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-base font-semibold">{title}</div>
-              <div className="mt-1 truncate text-sm text-text-secondary">{subtitle}</div>
-            </div>
-            <ArrowRight className="size-4 text-text-tertiary" />
-          </Link>
+        {MODES.map(({ href, title, subtitle, icon, gate, gateLabel }) => (
+          <ModeTile
+            key={href}
+            href={href}
+            title={title}
+            subtitle={subtitle}
+            icon={icon}
+            gate={gate}
+            gateLabel={gateLabel}
+          />
         ))}
       </section>
     </PageShell>

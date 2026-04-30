@@ -58,6 +58,15 @@ export interface LeaderboardEntry {
 
 export type ProfileMediaKind = "image" | "lottie" | "video";
 
+export interface NotificationSummary {
+  id: string;
+  kind: string;
+  title: string;
+  body: string;
+  unread: boolean;
+  createdAt: number;
+}
+
 export interface ProfileSummary {
   id: string;
   username: string;

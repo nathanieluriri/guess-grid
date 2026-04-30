@@ -1,29 +1,6 @@
-"use client";
-
 import Link from "next/link";
 import { Settings2 } from "lucide-react";
-import { toast } from "sonner";
-
-interface ProfileActionsProps {
-  variant?: "edit" | "loadout";
-}
-
-export function ProfileActions({ variant = "edit" }: ProfileActionsProps) {
-  if (variant === "loadout") {
-    return (
-      <button
-        onClick={() =>
-          toast("Loadout save next", {
-            description: "Inventory is backend-backed. A full loadout editor UI is the remaining step here.",
-          })
-        }
-        className="text-xs h-8 px-3 rounded-md surface-elevated hover:bg-foreground hover:text-background transition"
-      >
-        Equip Loadout
-      </button>
-    );
-  }
-
+export function ProfileActions() {
   return (
     <Link
       href="/profile/settings"

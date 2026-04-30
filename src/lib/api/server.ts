@@ -3,6 +3,7 @@ import { buildApiUrl } from "@/lib/api/client";
 import type {
   GameSession,
   LearnChapter,
+  ProfileSummary,
   PlayMode,
   ProfilePageData,
   PuzzlesPageData,
@@ -10,6 +11,9 @@ import type {
   LeaderboardEntry,
 } from "@/lib/api/mock-data";
 import type { PowerUp } from "@/lib/game";
+import type { CurrentUser } from "@/lib/api/types";
+
+export type { CurrentUser } from "@/lib/api/types";
 
 type FetchCachePolicy = { cache: "no-store" } | { next: { revalidate: number } };
 
@@ -44,8 +48,52 @@ async function fetchFromBackend<T>(
   return payload?.data ?? null;
 }
 
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  return fetchFromBackend<CurrentUser>("/users/me");
+}
+
 function getStatValue(stats: ProfilePageData["stats"], label: string, fallback: string) {
   return stats.find((item) => item.label === label)?.value ?? fallback;
+}
+
+function summarizeJoinDate(epochSeconds?: number | null) {
+  if (!epochSeconds) {
+    return "Joined recently";
+  }
+  return `Joined ${new Date(epochSeconds * 1000).toLocaleString("en-US", { month: "short", year: "numeric" })}`;
+}
+
+function buildFallbackProfileSummary(user: {
+  id?: string | null;
+  username: string;
+  email: string;
+  avatar_url?: string | null;
+  profile_media_url?: string | null;
+  profile_media_type?: string | null;
+  profile_media_kind?: ProfileSummary["profile_media_kind"];
+  date_created?: number | null;
+  rank?: number | null;
+  bio?: string | null;
+  is_email_verified?: boolean;
+}): ProfileSummary {
+  const parts = user.username.split(/[\s._-]+/).filter(Boolean).slice(0, 2);
+  const initials = parts.length > 0 ? parts.map((part) => part[0]?.toUpperCase() ?? "").join("") : "NA";
+
+  return {
+    id: user.id ?? "",
+    username: user.username,
+    email: user.email,
+    initials,
+    wins: 0,
+    rankLabel: user.rank ? `Rank #${user.rank}` : "Unranked",
+    joinedLabel: summarizeJoinDate(user.date_created),
+    bio: user.bio ?? null,
+    avatar_url: user.avatar_url ?? null,
+    profile_media_url: user.profile_media_url ?? user.avatar_url ?? null,
+    profile_media_type: user.profile_media_type ?? null,
+    profile_media_kind: user.profile_media_kind ?? (user.avatar_url ? "image" : null),
+    isEmailVerified: Boolean(user.is_email_verified),
+  };
 }
 
 export async function getWalletData(): Promise<{ balance: number; currency: string }> {
@@ -88,16 +136,33 @@ export async function getProfilePageData(): Promise<ProfilePageData> {
     return profile;
   }
 
+  const user = await fetchFromBackend<{
+    id?: string | null;
+    username: string;
+    email: string;
+    bio?: string | null;
+    avatar_url?: string | null;
+    profile_media_url?: string | null;
+    profile_media_type?: string | null;
+    profile_media_kind?: ProfileSummary["profile_media_kind"];
+    date_created?: number | null;
+    rank?: number | null;
+    is_email_verified?: boolean;
+  }>("/users/me");
+  if (user) {
+    return {
+      user: buildFallbackProfileSummary(user),
+      stats: [],
+      recentMatches: [],
+      inventory: [],
+    };
+  }
+
   return {
-    user: {
-      id: "guest",
-      username: "guest",
-      email: "guest@example.com",
-      initials: "GS",
-      wins: 0,
-      rankLabel: "Guest",
-      joinedLabel: "Joined recently",
-    },
+    user: buildFallbackProfileSummary({
+      username: "player",
+      email: "",
+    }),
     stats: [],
     recentMatches: [],
     inventory: [],

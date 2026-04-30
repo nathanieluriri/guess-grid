@@ -283,6 +283,19 @@
   50% { opacity: 1; }
 }
 
+@keyframes radar-blip {
+  0%   { opacity: 0; transform: scale(0); }
+  18%  { opacity: 1; transform: scale(1.15); }
+  32%  { transform: scale(1); }
+  78%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0); }
+}
+
+.radar-blip {
+  animation: radar-blip 2.4s var(--ease-entrance) forwards;
+  transform-origin: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

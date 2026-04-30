@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { apiRequest, buildApiUrl } from "@/lib/api/client";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const SECRET_LENGTH = 4;
 const DEFAULT_FEEDBACK = "Drag digits to build your guess";
@@ -73,6 +74,7 @@ function waitingFeedback(_mode: PlayMode, status: string) {
 }
 
 export function GameBoard({ mode, session }: GameBoardProps) {
+  const { requireVerifiedUser } = useAuth();
   const [currentSession, setCurrentSession] = useState(session);
   const [slots, setSlots] = useState<Array<number | null>>(() => Array(SECRET_LENGTH).fill(null));
   const [history, setHistory] = useState<GuessResult[]>(() => toGuessHistory(session));
@@ -220,6 +222,11 @@ export function GameBoard({ mode, session }: GameBoardProps) {
     if (!currentSession.guessUrl) return;
     if (slots.some((slot) => slot === null)) {
       setFeedback("Fill all slots first");
+      return;
+    }
+    // Multiplayer rounds require a verified real user — pre-empt the backend
+    // 403 with a friendlier upgrade dialog / verify-email toast.
+    if (mode === "online" && !requireVerifiedUser("submit a ranked round")) {
       return;
     }
 
