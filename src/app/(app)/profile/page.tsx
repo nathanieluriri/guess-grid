@@ -68,21 +68,23 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        {data.stats.map((stat) => (
-          <div
-            key={stat.label}
-            className={cn(
-              "stat-card",
-              stat.label.toLowerCase().includes("win") && "border-[hsl(var(--signal-dead)/0.3)]",
-              stat.label.toLowerCase().includes("streak") && "border-[hsl(var(--signal-injured)/0.3)]",
-            )}
-          >
-            <div className="text-[11px] uppercase tracking-[0.22em] text-text-tertiary">{stat.label}</div>
-            <div className="mt-2 font-mono text-xl font-semibold">{stat.value}</div>
-          </div>
-        ))}
-      </section>
+      {data.stats.length > 0 ? (
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+          {data.stats.map((stat) => (
+            <div
+              key={stat.label}
+              className={cn(
+                "stat-card",
+                stat.label.toLowerCase().includes("win") && "border-[hsl(var(--signal-dead)/0.3)]",
+                stat.label.toLowerCase().includes("streak") && "border-[hsl(var(--signal-injured)/0.3)]",
+              )}
+            >
+              <div className="text-[11px] uppercase tracking-[0.22em] text-text-tertiary">{stat.label}</div>
+              <div className="mt-2 font-mono text-xl font-semibold">{stat.value}</div>
+            </div>
+          ))}
+        </section>
+      ) : null}
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
@@ -92,7 +94,16 @@ export default async function ProfilePage() {
           </Link>
         </div>
         <div className="space-y-3">
-          {data.recentMatches.map((match) => (
+          {data.recentMatches.length === 0 ? (
+            <div className="section-shell py-8 text-center">
+              <p className="text-sm text-text-secondary">No matches yet</p>
+              <p className="mt-1 text-xs text-text-tertiary">Play a round to start building your match history.</p>
+              <Link href="/play" className="mt-3 inline-block">
+                <span className="pill-chip">Play now</span>
+              </Link>
+            </div>
+          ) : (
+            data.recentMatches.map((match) => (
             <div key={match.matchId} className="list-row">
               <div className="grid size-10 shrink-0 place-items-center rounded-full surface-elevated font-mono text-xs font-semibold">
                 {match.opp.slice(0, 2).toUpperCase()}
@@ -113,7 +124,8 @@ export default async function ProfilePage() {
               </span>
               <div className="font-mono text-sm">{match.change}</div>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
 

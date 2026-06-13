@@ -47,7 +47,13 @@ export default async function LearnPage() {
       ) : null}
 
       <section className="space-y-3">
-        {chapters.map((chapter, index) => {
+        {chapters.length === 0 ? (
+          <div className="section-shell py-10 text-center">
+            <p className="text-sm text-text-secondary">Lessons are on the way</p>
+            <p className="mt-1 text-xs text-text-tertiary">The curriculum isn&apos;t available right now — check back soon.</p>
+          </div>
+        ) : (
+          chapters.map((chapter, index) => {
           const isDone = chapter.status === "done";
           const isCurrent = chapter.status === "current";
           const isLocked = chapter.status === "locked";
@@ -81,7 +87,8 @@ export default async function LearnPage() {
               <ChevronRight className="size-4 text-text-tertiary" />
             </Link>
           );
-        })}
+          })
+        )}
       </section>
     </PageShell>
   );

@@ -22,7 +22,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // Vite-era rule; vestigial under the Next.js App Router, where exporting
+      // `metadata`/`viewport`/`generateMetadata` alongside the page component is
+      // the required pattern. Disabled to keep the build log signal clean.
+      "react-refresh/only-export-components": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {

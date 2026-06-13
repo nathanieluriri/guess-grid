@@ -57,7 +57,13 @@ export function SocialScreen({
 
       {tab === "friends" ? (
         <section className="space-y-3">
-          {friends.map((friend) => (
+          {friends.length === 0 ? (
+            <div className="section-shell py-10 text-center">
+              <p className="text-sm text-text-secondary">No friends yet</p>
+              <p className="mt-1 text-xs text-text-tertiary">When you add friends, challenge them to private matches right here.</p>
+            </div>
+          ) : (
+            friends.map((friend) => (
             <div key={friend.id} className="list-row">
               <div className="relative">
                 <ProfileMedia
@@ -85,11 +91,18 @@ export function SocialScreen({
                 Challenge
               </button>
             </div>
-          ))}
+            ))
+          )}
         </section>
       ) : (
         <section className="section-shell overflow-hidden p-0">
-          {leaders.map((leader) => (
+          {leaders.length === 0 ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-text-secondary">Leaderboard is warming up</p>
+              <p className="mt-1 text-xs text-text-tertiary">Play ranked matches to claim a spot on the board.</p>
+            </div>
+          ) : (
+            leaders.map((leader) => (
             <div key={leader.rank} className="flex items-center gap-4 border-b border-border px-4 py-3.5 last:border-0">
               <span className="w-8 font-mono text-sm text-text-tertiary">#{leader.rank}</span>
               <ProfileMedia
@@ -101,7 +114,8 @@ export function SocialScreen({
               <span className="flex-1 text-sm font-medium">{leader.name}</span>
               <span className="font-mono font-semibold">{leader.wins}</span>
             </div>
-          ))}
+            ))
+          )}
         </section>
       )}
     </PageShell>

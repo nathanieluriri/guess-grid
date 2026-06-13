@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -370,7 +370,6 @@ export function GameBoard({ mode, session }: GameBoardProps) {
   const outcome: "won" | "lost" | null =
     currentSession.outcome ?? (isOver ? (lastGuessWon ? "won" : "lost") : null);
   const won = outcome === "won";
-  const lost = outcome === "lost";
   const opponentsTurn = currentSession.status === "started" && !currentSession.canGuess && !isOver;
 
   // ---- Match expired ----

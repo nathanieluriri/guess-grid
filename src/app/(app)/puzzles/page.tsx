@@ -71,7 +71,13 @@ export default async function PuzzlesPage() {
           </Link>
         ) : null}
 
-        {data.puzzles.map((puzzle, index) => {
+        {data.puzzles.length === 0 ? (
+          <div className="section-shell py-10 text-center">
+            <p className="text-sm text-text-secondary">No puzzles available right now</p>
+            <p className="mt-1 text-xs text-text-tertiary">Check back soon — fresh boards are added regularly.</p>
+          </div>
+        ) : (
+          data.puzzles.map((puzzle, index) => {
           const Icon = ICONS[puzzle.icon];
           const tier = inferTier(index);
 
@@ -92,7 +98,8 @@ export default async function PuzzlesPage() {
               <ChevronRight className="size-4 text-text-tertiary" />
             </Link>
           );
-        })}
+          })
+        )}
       </section>
     </PageShell>
   );
