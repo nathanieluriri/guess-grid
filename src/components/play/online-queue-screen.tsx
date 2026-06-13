@@ -79,24 +79,57 @@ export function OnlineQueueScreen({ user }: OnlineQueueScreenProps) {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource(buildApiUrl("/games/matchmaking/stream"), { withCredentials: true });
-    eventSource.onmessage = (event) => {
-      const payload = JSON.parse(event.data) as
-        | { type: "match_found"; match_id: string }
-        | { type: "snapshot"; status: { status: string; match_id?: string | null } };
+    let closed = false;
+    let source: EventSource | null = null;
+    let attempts = 0;
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 
-      if (payload.type === "match_found" || (payload.type === "snapshot" && payload.status.status === "matched")) {
-        eventSource.close();
-        router.push("/play/online");
-        router.refresh();
-      }
+    const goToMatch = () => {
+      if (closed) return;
+      closed = true;
+      source?.close();
+      router.push("/play/online");
+      router.refresh();
     };
 
-    eventSource.onerror = () => {
-      eventSource.close();
+    const connect = () => {
+      if (closed) return;
+      source = new EventSource(buildApiUrl("/games/matchmaking/stream"), { withCredentials: true });
+      source.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data) as
+            | { type: "match_found"; match_id: string }
+            | { type: "snapshot"; status: { status: string; match_id?: string | null } };
+          if (payload.type === "match_found" || (payload.type === "snapshot" && payload.status.status === "matched")) {
+            goToMatch();
+          }
+        } catch {
+          /* ignore keep-alive / malformed frames */
+        }
+      };
+      source.onerror = () => {
+        source?.close();
+        if (closed) return;
+        attempts += 1;
+        // Reconnect with backoff; the poll below is the safety net meanwhile.
+        reconnectTimer = setTimeout(connect, Math.min(1000 * 2 ** Math.min(attempts, 4), 15000));
+      };
     };
 
-    return () => eventSource.close();
+    // Fallback poll in case the stream can't be established at all.
+    const poll = setInterval(async () => {
+      if (closed) return;
+      const status = await apiRequest<{ status: string; match_id?: string | null }>("/games/matchmaking/status");
+      if (status.data?.status === "matched") goToMatch();
+    }, 5000);
+
+    connect();
+    return () => {
+      closed = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      clearInterval(poll);
+      source?.close();
+    };
   }, [router]);
 
   const minutes = String(Math.floor(seconds / 60)).padStart(2, "0");

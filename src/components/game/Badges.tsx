@@ -17,7 +17,7 @@ export function DeadBadge({ count, size = "md" }: BadgeProps) {
       aria-label={`${count} Dead`}
     >
       <Skull className={size === "sm" ? "size-2.5" : "size-3"} strokeWidth={2.5} />
-      <span className="animate-count-up">{count}</span>
+      <span key={count} className="animate-count-up">{count}</span>
     </div>
   );
 }
@@ -33,7 +33,7 @@ export function InjuredBadge({ count, size = "md" }: BadgeProps) {
       aria-label={`${count} Injured`}
     >
       <Bandage className={size === "sm" ? "size-2.5" : "size-3"} strokeWidth={2.5} />
-      <span className="animate-count-up">{count}</span>
+      <span key={count} className="animate-count-up">{count}</span>
     </div>
   );
 }

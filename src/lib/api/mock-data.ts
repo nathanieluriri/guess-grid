@@ -104,6 +104,8 @@ export interface GameSession {
   status: string;
   canGuess: boolean;
   viewerPlayerId?: string | null;
+  outcome?: "won" | "lost" | null;
+  winnerPlayerId?: string | null;
   opponent: {
     initials: string;
     name: string;

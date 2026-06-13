@@ -13,6 +13,8 @@ export interface GuessResult {
   dead: number;
   injured: number;
   powerUpUsed?: PowerUpId;
+  /** True when the guess belongs to the viewing player (vs. the opponent). */
+  byViewer?: boolean;
 }
 
 export type PowerUpId =
@@ -68,6 +70,21 @@ export function evaluateGuess(secret: number[], guess: number[]): { dead: number
   }
 
   return { dead, injured };
+}
+
+// Mirrors the backend `validate_code` rule (digits only, exact length, all
+// unique) so the UI can validate inline before hitting the API.
+export function isValidSecret(code: string, length = 4): boolean {
+  return code.length === length && /^[0-9]+$/.test(code) && new Set(code).size === length;
+}
+
+export function secretValidationError(code: string, length = 4): string | null {
+  if (code.length === 0) return null;
+  if (!/^[0-9]*$/.test(code)) return "Digits only";
+  if (new Set(code).size !== code.length) return "Digits must be unique";
+  if (code.length < length) return `${length - code.length} more digit${length - code.length === 1 ? "" : "s"}`;
+  if (code.length > length) return `Use exactly ${length} digits`;
+  return null;
 }
 
 export function generateSecret(length: number, allowDuplicates = false): number[] {

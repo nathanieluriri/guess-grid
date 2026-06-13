@@ -2,23 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api/client";
+import { isValidSecret } from "@/lib/game";
+import { SecretInput } from "@/components/play/secret-input";
 import type { GameSession } from "@/lib/api/mock-data";
 
 export function LocalSetupScreen() {
   const router = useRouter();
   const [localSecrets, setLocalSecrets] = useState({ creator: "", joiner: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const creatorValid = isValidSecret(localSecrets.creator);
+  const joinerValid = isValidSecret(localSecrets.joiner);
+  const bothValid = creatorValid && joinerValid;
 
   async function startLocalMatch() {
-    if (localSecrets.creator.length !== 4 || localSecrets.joiner.length !== 4) {
-      toast.error("Enter both 4-digit secrets");
+    if (!bothValid || isSubmitting) {
+      setError("Both players need a 4 unique-digit secret");
       return;
     }
 
+    setError(null);
     setIsSubmitting(true);
     const response = await apiRequest<GameSession>("/games/local", {
       method: "POST",
@@ -27,7 +35,9 @@ export function LocalSetupScreen() {
     setIsSubmitting(false);
 
     if (response.error || !response.data) {
-      toast.error("Unable to start local match", { description: response.error ?? "Request failed" });
+      const message = response.error ?? "Request failed";
+      setError(message);
+      toast.error("Unable to start local match", { description: message });
       return;
     }
 
@@ -36,33 +46,50 @@ export function LocalSetupScreen() {
   }
 
   return (
-    <section className="section-shell space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block space-y-2">
-          <span className="text-[11px] uppercase tracking-[0.22em] text-text-tertiary">Player one secret</span>
-          <input
-            value={localSecrets.creator}
-            onChange={(event) => setLocalSecrets((prev) => ({ ...prev, creator: event.target.value.replace(/\D/g, "").slice(0, 4) }))}
-            className="h-12 w-full rounded-2xl bg-inset px-4 text-sm ring-focus"
-            placeholder="1234"
-            inputMode="numeric"
-          />
-        </label>
-        <label className="block space-y-2">
-          <span className="text-[11px] uppercase tracking-[0.22em] text-text-tertiary">Player two secret</span>
-          <input
-            value={localSecrets.joiner}
-            onChange={(event) => setLocalSecrets((prev) => ({ ...prev, joiner: event.target.value.replace(/\D/g, "").slice(0, 4) }))}
-            className="h-12 w-full rounded-2xl bg-inset px-4 text-sm ring-focus"
-            placeholder="5678"
-            inputMode="numeric"
-          />
-        </label>
+    <section className="section-shell space-y-5">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <SecretInput
+          value={localSecrets.creator}
+          onChange={(next) => {
+            setLocalSecrets((prev) => ({ ...prev, creator: next }));
+            if (error) setError(null);
+          }}
+          label="Player one secret"
+          placeholder="1234"
+          disabled={isSubmitting}
+        />
+        <SecretInput
+          value={localSecrets.joiner}
+          onChange={(next) => {
+            setLocalSecrets((prev) => ({ ...prev, joiner: next }));
+            if (error) setError(null);
+          }}
+          label="Player two secret"
+          placeholder="5678"
+          disabled={isSubmitting}
+        />
       </div>
 
-      <Button onClick={startLocalMatch} disabled={isSubmitting} className="h-12 w-full text-base sm:w-auto">
-        {isSubmitting ? "Starting..." : "Start local match"}
-        {!isSubmitting ? <ArrowRight className="ml-2 size-4" /> : null}
+      <p className="text-xs text-text-tertiary">
+        Hand the device back and forth — each player only enters and guesses on their own turn.
+      </p>
+
+      {error ? (
+        <p className="text-sm text-[hsl(var(--signal-danger))]" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <Button onClick={startLocalMatch} disabled={isSubmitting || !bothValid} className="h-12 w-full text-base sm:w-auto">
+        {isSubmitting ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="size-4 animate-spin" /> Starting…
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2">
+            Start local match <ArrowRight className="size-4" />
+          </span>
+        )}
       </Button>
     </section>
   );
