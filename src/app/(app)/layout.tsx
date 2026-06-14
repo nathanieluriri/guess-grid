@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { DesktopRail, MobileTabs, TopBar } from "@/components/Navigation";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { NavProgress } from "@/components/app/nav-progress";
 import { getCurrentUser } from "@/lib/api/server";
 
 export default async function AppShellLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export default async function AppShellLayout({ children }: { children: React.Rea
 
   return (
     <AuthProvider user={user}>
+      <NavProgress />
       <div className="min-h-screen bg-background flex flex-col">
         <TopBar />
         <div className="flex flex-1 w-full">

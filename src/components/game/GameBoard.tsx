@@ -25,7 +25,7 @@ import type { GameSession, PlayMode } from "@/lib/api/mock-data";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { apiRequest, buildApiUrl } from "@/lib/api/client";
+import { apiRequest } from "@/lib/api/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const SECRET_LENGTH = 4;
@@ -150,7 +150,7 @@ export function GameBoard({ mode, session }: GameBoardProps) {
 
     const connect = () => {
       if (closed) return;
-      source = new EventSource(buildApiUrl(streamPath), { withCredentials: true });
+      source = new EventSource(`/api/v1${streamPath}`, { withCredentials: true });
       source.onopen = () => {
         attempts = 0;
         setStreamStatus("live");

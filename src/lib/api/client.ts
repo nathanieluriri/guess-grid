@@ -13,6 +13,14 @@ export function buildApiUrl(path: string) {
   return `${API_BASE_URL}${normalizedPath}`;
 }
 
+// Client-side calls go through the same-origin proxy (`/api/v1/...`) so the
+// browser attaches the HttpOnly `di_access` / `di_refresh` cookies (which live
+// on this origin, not the API host). Server-side code keeps using buildApiUrl.
+export function clientApiUrl(path: string) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `/api/v1${normalizedPath}`;
+}
+
 export interface ApiResult<T> {
   data: T | null;
   error: string | null;
@@ -46,7 +54,7 @@ export async function apiRequest<T>(
     }
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(buildApiUrl(path), {
+      const response = await fetch(clientApiUrl(path), {
         ...requestInit,
         headers: {
           "Content-Type": "application/json",

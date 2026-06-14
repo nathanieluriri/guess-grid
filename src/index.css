@@ -151,11 +151,13 @@
   }
 
   .stat-card {
-    @apply rounded-2xl border border-border surface p-4 shadow-sm;
+    @apply rounded-2xl border border-border surface p-4 shadow-sm transition duration-200;
+    @apply hover:-translate-y-px hover:shadow-md;
   }
 
   .list-row {
-    @apply flex items-center gap-4 rounded-2xl border border-border surface p-4 shadow-sm transition;
+    @apply flex items-center gap-4 rounded-2xl border border-border surface p-4 shadow-sm transition duration-200;
+    @apply hover:-translate-y-px hover:border-[hsl(var(--border-strong))] hover:shadow-md;
   }
 
   .pill-chip {
@@ -294,6 +296,17 @@
 .radar-blip {
   animation: radar-blip 2.4s var(--ease-entrance) forwards;
   transform-origin: center;
+}
+
+@keyframes nav-progress {
+  0%   { width: 0%; }
+  30%  { width: 45%; }
+  70%  { width: 78%; }
+  100% { width: 92%; }
+}
+
+.nav-progress-bar {
+  animation: nav-progress 6s cubic-bezier(0.12, 0.7, 0.1, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

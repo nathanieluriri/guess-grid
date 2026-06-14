@@ -168,6 +168,26 @@ export function TopBar() {
     }
   }
 
+  // The menu renders from the always-present auth user, enriched by `profile`
+  // once it loads — so it opens instantly instead of waiting on a fetch.
+  const fallbackInitials = user?.username
+    ? user.username
+        .replace(/[^a-zA-Z0-9]+/g, " ")
+        .trim()
+        .split(" ")
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("") || user.username.slice(0, 2).toUpperCase()
+    : "ME";
+  const menuName = profile?.username ?? user?.username ?? "Player";
+  const menuEmail = profile?.email ?? user?.email ?? "";
+  const menuInitials = profile?.initials ?? fallbackInitials;
+  const menuMedia = profile?.profile_media_url ?? profile?.avatar_url ?? user?.avatar_url ?? null;
+  const menuMediaKind = profile?.profile_media_kind ?? null;
+  const menuRank = profile?.rankLabel ?? "Unranked";
+  const menuWins = profile?.wins;
+  const menuJoined = profile?.joinedLabel ? profile.joinedLabel.replace("Joined ", "") : "—";
+
   return (
     <header className="sticky top-0 z-40 h-14 surface border-b border-border flex items-center px-4 gap-3 sm:gap-4">
       <div className="flex items-center gap-2">
@@ -287,32 +307,32 @@ export function TopBar() {
             onClick={() => setProfileOpen((current) => !current)}
           >
             <ProfileMedia
-              src={profile?.profile_media_url ?? profile?.avatar_url ?? null}
-              kind={profile?.profile_media_kind ?? null}
-              initials={profile?.initials ?? "ME"}
+              src={menuMedia}
+              kind={menuMediaKind}
+              initials={menuInitials}
               size={28}
             />
-            <ChevronDown className="size-4 text-text-tertiary" />
+            <ChevronDown className={cn("size-4 text-text-tertiary transition-transform", profileOpen && "rotate-180")} />
           </button>
 
-          {profileOpen && profile ? (
-            <div className="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-border surface p-2 shadow-lg">
+          {profileOpen ? (
+            <div className="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-border surface p-2 shadow-lg animate-scale-in origin-top-right">
               <div className="rounded-xl px-3 py-3">
                 <div className="flex items-center gap-3">
                   <ProfileMedia
-                    src={profile.profile_media_url ?? profile.avatar_url ?? null}
-                    kind={profile.profile_media_kind ?? null}
-                    initials={profile.initials}
+                    src={menuMedia}
+                    kind={menuMediaKind}
+                    initials={menuInitials}
                     size={44}
                   />
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold">{profile.username}</div>
+                    <div className="truncate text-sm font-semibold">{menuName}</div>
                     <div className="truncate text-xs text-text-secondary">
                       {isGuest
                         ? guestExpiryLabel
                           ? `Guest · ${guestExpiryLabel}`
                           : "Guest session"
-                        : profile.email}
+                        : menuEmail}
                     </div>
                     {isGuest && guestExpiryUrgent && guestExpiryLabel ? (
                       <div className="mt-0.5 truncate text-[11px] text-destructive">
@@ -324,15 +344,15 @@ export function TopBar() {
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                   <div className="rounded-xl border border-border p-2">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-text-tertiary">Wins</div>
-                    <div className="mt-1 font-mono text-sm font-semibold">{profile.wins}</div>
+                    <div className="mt-1 font-mono text-sm font-semibold">{menuWins ?? "—"}</div>
                   </div>
                   <div className="rounded-xl border border-border p-2">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-text-tertiary">Rank</div>
-                    <div className="mt-1 truncate text-sm font-semibold">{profile.rankLabel}</div>
+                    <div className="mt-1 truncate text-sm font-semibold">{menuRank}</div>
                   </div>
                   <div className="rounded-xl border border-border p-2">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-text-tertiary">Joined</div>
-                    <div className="mt-1 truncate text-sm font-semibold">{profile.joinedLabel.replace("Joined ", "")}</div>
+                    <div className="mt-1 truncate text-sm font-semibold">{menuJoined}</div>
                   </div>
                 </div>
               </div>

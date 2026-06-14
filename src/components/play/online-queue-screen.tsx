@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { apiRequest, buildApiUrl } from "@/lib/api/client";
+import { apiRequest } from "@/lib/api/client";
 import { ProfileMedia } from "@/components/profile/ProfileMedia";
 import type { ProfileSummary } from "@/lib/api/mock-data";
 
@@ -94,7 +94,7 @@ export function OnlineQueueScreen({ user }: OnlineQueueScreenProps) {
 
     const connect = () => {
       if (closed) return;
-      source = new EventSource(buildApiUrl("/games/matchmaking/stream"), { withCredentials: true });
+      source = new EventSource("/api/v1/games/matchmaking/stream", { withCredentials: true });
       source.onmessage = (event) => {
         try {
           const payload = JSON.parse(event.data) as
